@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Coin Toss + Name Picker</title>
+
+<style>
+:root{
+  --size:240px;
+}
+
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  background:radial-gradient(circle at 10% 10%, #2a5cbe 0%, #000c2c 40%, #021018 100%);
+  color:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  margin:0;
+  padding:20px;
+}
+
+.stage{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+}
+
+.coin-wrapper{
+  width:var(--size);
+  height:var(--size);
+  perspective:2000px;
+}
+
+.coin{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform 2s cubic-bezier(.2,.9,.3,1);
+  cursor:pointer;
+}
+
+.coin-face{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  backface-visibility:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:
+    0 6px 18px rgba(223,223,223,0.45),
+    inset 0 6px 18px rgba(5,3,3,0.06);
+  border:6px solid rgba(255,215,64,0.18);
+  background:linear-gradient(145deg,#772477 0%,#f0b72b 45%,#b88705 100%);
+}
+
+.face-front{
+  transform:rotateY(0deg) translateZ(2px);
+}
+
+.face-back{
+  transform:rotateY(180deg) translateZ(2px);
+}
+
+.coin-face img.icon{
+  width:70%;
+  height:70%;
+  object-fit:contain;
+  border-radius:50%;
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+}
+
+button{
+  background:linear-gradient(180deg,#2e7ff9,#1360d6);
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(12,40,90,.35);
+}
+
+button.secondary{
+  background:linear-gradient(180deg,#7a7a7a,#4f4f4f);
+}
+
+.result{
+  font-size:24px;
+  font-weight:700;
+  text-align:center;
+  min-height:30px;
+}
+
+.hint{
+  opacity:.8;
+  text-align:center;
+}
+
+.custom-result{
+  background:rgba(255,255,255,0.1);
+  padding:15px;
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  width:280px;
+}
+
+.custom-result input{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+}
+
+.name-picker{
+  margin-top:10px;
+  background:rgba(255,255,255,0.12);
+  padding:15px;
+  border-radius:14px;
+  width:320px;
+  text-align:center;
+}
+
+.name-picker input{
+  width:80%;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  margin:5px 0;
+}
+
+.name-list{
+  margin-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  justify-content:center;
+}
+
+.name-item{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#eef2ff;
+  color:#08306b;
+}
+
+.name-item.selected{
+  background:#dff7dd;
+  color:#0a6b2f;
+  font-weight:700;
+}
+</style>
+</head>
+
+<body>
+
+<div class="stage">
+
+  <!-- Coin -->
+  <div class="coin-wrapper">
+    <div id="coin" class="coin">
+
+      <div class="coin-face face-front">
+        <img
+          src="https://i.pinimg.com/736x/78/3a/c6/783ac6cd9cec8ce40975d22df146614a.jpg"
+          class="icon"
+        >
+      </div>
+
+      <div class="coin-face face-back">
+        <img
+          src="https://img.freepik.com/free-vector/abstract-badminton-logo_17005-995.jpg"
+          class="icon"
+        >
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="controls">
+    <button id="spinBtn">Toss</button>
+    <button class="secondary" id="randomBtn">Random Result</button>
+    <button class="secondary" id="changeLogoBtn">Change Logos</button>
+  </div>
+
+  <!-- Result -->
+  <div class="result" id="result">
+    Result: ---
+  </div>
+
+  <div class="hint">
+    CLICK THE COIN OR PRESS TOSS
+  </div>
+
+  <!-- Custom Toss Result -->
+  <div class="custom-result">
+
+    <input
+      type="text"
+      id="frontName"
+      placeholder="Front Result Name"
+      value="BADMINTON"
+    >
+
+    <input
+      type="text"
+      id="backName"
+      placeholder="Back Result Name"
+      value="SHUTTLE CORK"
+    >
+
+    <button id="saveResultBtn">
+      Save Result Names
+    </button>
+
+  </div>
+
+  <!-- Name Picker -->
+  <div class="name-picker">
+
+    <input
+      type="text"
+      id="nameInput"
+      placeholder="Enter name"
+    >
+
+    <br>
+
+    <button id="addNameBtn">
+      Add Name
+    </button>
+
+    <button id="spinNameBtn">
+      Spin Name
+    </button>
+
+    <button id="restoreNameBtn">
+      Restore Names
+    </button>
+
+    <div class="name-list" id="nameList"></div>
+
+  </div>
+
+</div>
+
+<script>
+(() => {
+
+  // Coin Elements
+  const coin = document.getElementById("coin");
+  const resultBox = document.getElementById("result");
+
+  const spinBtn = document.getElementById("spinBtn");
+  const randomBtn = document.getElementById("randomBtn");
+  const changeLogoBtn = document.getElementById("changeLogoBtn");
+
+  const frontImg = document.querySelector(".face-front img.icon");
+  const backImg = document.querySelector(".face-back img.icon");
+
+  // Result Name Inputs
+  const frontNameInput = document.getElementById("frontName");
+  const backNameInput = document.getElementById("backName");
+  const saveResultBtn = document.getElementById("saveResultBtn");
+
+  let frontResultName = "BADMINTON";
+  let backResultName = "SHUTTLE CORK";
+
+  let spinning = false;
+
+  // Toss Coin
+  function tossCoin(){
+
+    if(spinning) return;
+
+    spinning = true;
+
+    resultBox.textContent = "Spinning...";
+
+    coin.style.transition = "transform 2s ease-out";
+    coin.style.transform = "rotateY(1440deg)";
+
+    const isFront = Math.random() < 0.5;
+
+    const finalAngle = isFront ? 0 : 180;
+
+    setTimeout(() => {
+
+      coin.style.transition = "transform 0.6s ease-out";
+      coin.style.transform = `rotateY(${finalAngle}deg)`;
+
+      setTimeout(() => {
+
+        resultBox.textContent =
+          isFront
+          ? frontResultName
+          : backResultName;
+
+        spinning = false;
+
+      },700);
+
+    },2000);
+  }
+
+  // Random Coin Position
+  function randomizeCoin(){
+
+    if(spinning) return;
+
+    const angle = Math.floor(Math.random()*360);
+
+    coin.style.transition = "transform 0.3s linear";
+    coin.style.transform = `rotateY(${angle}deg)`;
+
+    resultBox.textContent = "Randomized!";
+  }
+
+  // Change Logos
+  changeLogoBtn.addEventListener("click", () => {
+
+    const newFront =
+      prompt("Enter Front Logo URL:", frontImg.src);
+
+    const newBack =
+      prompt("Enter Back Logo URL:", backImg.src);
+
+    if(newFront) frontImg.src = newFront;
+    if(newBack) backImg.src = newBack;
+
+  });
+
+  // Save Result Names
+  saveResultBtn.addEventListener("click", () => {
+
+    frontResultName =
+      frontNameInput.value.trim() || "BADMINTON";
+
+    backResultName =
+      backNameInput.value.trim() || "SHUTTLE CORK";
+
+    alert("Result names updated!");
+
+  });
+
+  // Events
+  spinBtn.addEventListener("click", tossCoin);
+  randomBtn.addEventListener("click", randomizeCoin);
+  coin.addEventListener("click", tossCoin);
+
+  // Name Picker
+  const nameInput = document.getElementById("nameInput");
+
+  const addNameBtn =
+    document.getElementById("addNameBtn");
+
+  const spinNameBtn =
+    document.getElementById("spinNameBtn");
+
+  const restoreNameBtn =
+    document.getElementById("restoreNameBtn");
+
+  const nameListDiv =
+    document.getElementById("nameList");
+
+  let names = [];
+  let selected = [];
+
+  function renderNames(){
+
+    nameListDiv.innerHTML = "";
+
+    for(const n of names){
+
+      const div = document.createElement("div");
+
+      div.className =
+        "name-item " +
+        (selected.includes(n) ? "selected" : "");
+
+      div.textContent = n;
+
+      nameListDiv.appendChild(div);
+    }
+  }
+
+  // Add Name
+  addNameBtn.addEventListener("click", () => {
+
+    const val = nameInput.value.trim();
+
+    if(val && !names.includes(val)){
+      names.push(val);
+    }
+
+    nameInput.value = "";
+
+    renderNames();
+  });
+
+  // Spin Name
+  spinNameBtn.addEventListener("click", () => {
+
+    const available =
+      names.filter(n => !selected.includes(n));
+
+    if(available.length === 0){
+
+      alert("All names selected!");
+
+      return;
+    }
+
+    let rounds = 24;
+
+    let last = null;
+
+    const interval = setInterval(() => {
+
+      const r =
+        Math.floor(Math.random()*available.length);
+
+      const pick = available[r];
+
+      resultBox.textContent =
+        "... " + pick + " ...";
+
+      last = pick;
+
+      rounds--;
+
+      if(rounds <= 0){
+
+        clearInterval(interval);
+
+        selected.push(last);
+
+        renderNames();
+
+        resultBox.textContent =
+          "Selected: " + last;
+      }
+
+    },80);
+
+  });
+
+  // Restore Names
+  restoreNameBtn.addEventListener("click", () => {
+
+    selected = [];
+
+    renderNames();
+
+    resultBox.textContent =
+      "All names restored.";
+
+  });
+
+})();
+</script>
+
+</body>
+</html>
